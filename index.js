@@ -23,6 +23,25 @@ export default (app) => {
     return context.octokit.rest.issues.createComment(prComment);
   });
 
+  app.on("push", async (context) => {
+    const commits = context.payload.commits;
+
+    for (const commit of commits) {
+      const { owner, repo } = context.repo();
+      const author = commit.author.name;
+      const gifUrl = await getRandomGif('great-contribution');
+
+      console.log(gifUrl);
+
+      await context.octokit.rest.repos.createCommitComment({
+        owner: owner,
+        repo: repo,
+        commit_sha: commit.id,
+        body: `### 🔥 Great work! \n\n@${author} pushed a commit! \n\n![Hype GIF](${gifUrl})`,
+      });
+    }
+  });
+
   // For more information on building apps:
   // https://probot.github.io/docs/
 
